@@ -8,6 +8,7 @@ from helpers import get_secure_filename_filepath, download_from_s3
 
 bp = Blueprint('actions', __name__, url_prefix='/actions')
 
+URL = 'https://image-storage-api.s3.eu-west-3.amazonaws.com'
 
 
 @bp.route('/resize', methods=["POST"])

@@ -20,9 +20,9 @@ def upload_to_s3(file, bucket_name, acl='public-read'):
     s3_client = boto3.client('s3', aws_access_key_id=current_app.config['S3_KEY'],
                              aws_secret_access_key=current_app.config['S3_SECRET'])
     file.filename = secure_filename(file.filename)
-    file.filename = os.path.join('uploads/', file.filename)
+    upload_path = os.path.join('uploads/', file.filename)
     try:
-        s3_client.upload_fileobj(file, bucket_name, file.filename,
+        s3_client.upload_fileobj(file, bucket_name, upload_path,
                                  ExtraArgs={'ACL': acl, 'ContentType': file.content_type})
     except ClientError as e:
         return jsonify({'message': 'Cannot upload files to S3 account.'})
@@ -31,9 +31,10 @@ def upload_to_s3(file, bucket_name, acl='public-read'):
 
 
 def download_from_s3(filename):
+    download_path = current_app.config['UPLOAD_FOLDER'] + filename
     s3_resource = boto3.resource('s3', aws_access_key_id=current_app.config['S3_KEY'],
                         aws_secret_access_key=current_app.config['S3_SECRET'])
     bucket = s3_resource.Bucket(current_app.config['S3_BUCKET'])
-    s3_object = bucket.Object(filename)
+    s3_object = bucket.Object(download_path)
     response = s3_object.get()
     return response['Body']
