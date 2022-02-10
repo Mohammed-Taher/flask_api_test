@@ -1,13 +1,9 @@
-import os
-from flask import Flask, request, send_from_directory
-from flask.json import jsonify
+from flask import Flask, jsonify, request, send_from_directory
 from actions import bp as actionsbp
 from filters import bp as filtersbp
 from android import bp as androidbp
 from helpers import allowed_extension, upload_to_s3
-from werkzeug.utils import secure_filename
 import boto3
-from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
@@ -31,7 +27,12 @@ app.register_blueprint(filtersbp)
 app.register_blueprint(androidbp)
 
 
-@app.route('/images', methods=['POST'])
+@app.route('/')
+def index():
+    return jsonify({'message': 'Welcome to Image API'})
+
+
+@app.route('/images', methods=['GET', 'POST'])
 def upload_image():
     if request.method == 'POST':
 
@@ -55,6 +56,14 @@ def upload_image():
             'message': 'File successfully uploaded',
             'filename': output,
         }), 201
+
+    images = []
+    s3_resource = boto3.resource('s3', aws_access_key_id=app.config['S3_KEY'],
+                                 aws_secret_access_key=app.config['S3_SECRET'])
+    s3_bucket = s3_resource.Bucket(app.config['S3_BUCKET'])
+    for obj in s3_bucket.objects.all():
+        images.append(obj.key)
+    return jsonify({"data": images}), 200
 
 
 @app.route('/downloads/<name>')

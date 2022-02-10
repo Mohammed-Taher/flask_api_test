@@ -33,13 +33,14 @@ def resize_preset(preset):
         return jsonify({"message": "The preset is not available"}), 400
 
     filename = request.json['filename']
-    filename, filepath = get_secure_filename_filepath(filename)
+    file_stream = download_from_s3(filename)
+    # filename, filepath = get_secure_filename_filepath(filename)
 
     try:
         size = presets[preset]
-        image = Image.open(filepath)
+        image = Image.open(file_stream)
         out = image.resize(size)
-        out.save(filepath)
+        out.save(os.path.join(current_app.config['DOWNLOAD_FOLDER'], filename))
         return redirect(url_for('download_file', name=filename))
 
     except FileNotFoundError:
@@ -49,13 +50,14 @@ def resize_preset(preset):
 @bp.route('/rotate', methods=["POST"])
 def rotate():
     filename = request.json['filename']
-    filename, filepath = get_secure_filename_filepath()
+    file_stream = download_from_s3(filename)
+    # filename, filepath = get_secure_filename_filepath()
 
     try:
         degree = float(request.json['degree'])
-        image = Image.open(filepath)
+        image = Image.open(file_stream)
         out = image.rotate(degree)
-        out.save(filepath)
+        out.save(os.path.join(current_app.config['DOWNLOAD_FOLDER'], filename))
         return redirect(url_for('download_file', name=filename))
     except FileNotFoundError:
         return jsonify({"message": "File not found."}), 404
@@ -64,17 +66,18 @@ def rotate():
 @bp.route('/flip', methods=["POST"])
 def flip():
     filename = request.json['filename']
+    file_stream = download_from_s3(filename)
 
-    filename, filepath = get_secure_filename_filepath(filename)
+    # filename, filepath = get_secure_filename_filepath(filename)
 
     try:
-        image = Image.open(filepath)
+        image = Image.open(file_stream)
         out = None
         if request.json['direction'] == 'horizontal':
             out = image.transpose(Image.FLIP_TOP_BOTTOM)
         else:
             out = image.transpose(Image.FLIP_LEFT_RIGHT)
-        out.save(filepath)
+        out.save(os.path.join(current_app.config['DOWNLOAD_FOLDER'], filename))
         return redirect(url_for('download_file', name=filename))
 
     except FileNotFoundError:

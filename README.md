@@ -23,7 +23,7 @@ pip install -r requirements.txt
 3. On Linux or MacOS, export the following environment variable:
 
 ```
-export FLASK_ENV=develpment
+export FLASK_ENV=development
 ```
 
 On Windows set the following environment variable:
