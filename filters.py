@@ -26,7 +26,7 @@ def blur():
 
 @bp.route('/contrast', methods=["POST"])
 def contrast():
-    filename = request.json('filename')
+    filename = request.json['filename']
     # filename, filepath = get_secure_filename_filepath(filename)
     file_stream = download_from_s3(filename)
 
@@ -42,7 +42,7 @@ def contrast():
 
 @bp.route('/brightness', methods=["POST"])
 def brightness():
-    filename = request.json('filename')
+    filename = request.json['filename']
     file_stream = download_from_s3(filename)
     # filename, filepath = get_secure_filename_filepath(filename)
 
